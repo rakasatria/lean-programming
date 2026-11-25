@@ -298,8 +298,11 @@ async function main() {
     opt.constraints ? '2. .gate-constraints.md holds the repo rules. They are binding review criteria.' : '2. No extra repo rule file was supplied.',
     '3. Verify every Critical/High finding directly in the source files here before reporting it.',
     round === 2
-      ? '4. Round 2 DELTA-ONLY: check the open/disputed IDs in .gate-prev-review.md against .gate-diff.patch ONLY. Keep their IDs. Do not invent unrelated scope.'
-      : '4. Round 1: audit the full diff against .gate-focus.md. Ignore formatting, praise and trivial nits.',
+      ? '4. Round 2 DELTA-ONLY: check the open/disputed IDs in .gate-prev-review.md against .gate-diff.patch ONLY. Keep their IDs. Do not invent unrelated scope. '
+        + 'Report a NEW finding only when a line in this delta introduced it, and say which line. Never re-raise a finding that .gate-constraints.md records as an owner decision.'
+      : '4. Round 1: audit the full diff against .gate-focus.md. Ignore formatting, praise and trivial nits. '
+        + 'Report EVERY critical, high and medium finding in this one pass: later rounds only check the fixes, so a finding held back now is never reviewed. '
+        + 'Make each fix complete: name every file and line it must touch, including the matching test, docs and config, so the fix does not need a second round.',
     "5. Set status='approved' ONLY when 0 critical, 0 high and 0 medium findings remain.",
     `6. Use IDs ${prefix}-01, ${prefix}-02... Every finding states all of: location = WHERE (path:line), bug = WHAT is wrong (1 line, concrete failure), expected = the correct behavior (1 line, observable), fix = HOW (<=4 lines, exact function + change), test = exact name + assertion. Summary <=120 chars. Zero praise.`,
     '7. Tools: read files only. The only shell commands allowed are cat, grep, rg, ls, head, tail, wc. No git, no edits, no network. A denied tool aborts the whole review.',
