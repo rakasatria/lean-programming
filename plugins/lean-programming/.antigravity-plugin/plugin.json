@@ -5,5 +5,6 @@
   "author": "rakasatria",
   "skills": [
     "./skills"
-  ]
+  ],
+  "license": "MIT"
 }
