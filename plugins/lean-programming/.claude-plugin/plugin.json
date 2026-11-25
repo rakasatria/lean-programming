@@ -1,0 +1,6 @@
+{
+  "name": "lean-programming",
+  "version": "0.1.0",
+  "description": "Queue-driven releases for Claude Code: model-pinned subagents, Fable 1st review, independent 2nd gate, screenshots, merge, tag, push.",
+  "author": { "name": "rakasatria", "url": "https://github.com/rakasatria" }
+}

@@ -1,0 +1,50 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["status", "summary", "findings"],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["approved", "changes_requested"]
+    },
+    "summary": {
+      "type": "string",
+      "description": "One ultracave line <=120 chars: counts + key risk only, zero praise."
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "severity", "location", "bug", "expected", "fix", "test"],
+        "properties": {
+          "id": { "type": "string" },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low"]
+          },
+          "location": {
+            "type": "string",
+            "description": "WHERE it is wrong: path/to/file:line or path/to/file:start-end"
+          },
+          "bug": {
+            "type": "string",
+            "description": "WHAT is wrong: 1 concise line, concrete failure scenario (input/state -> wrong result)"
+          },
+          "expected": {
+            "type": "string",
+            "description": "EXPECTED correct behavior: 1 line, observable result for the same scenario (status code, value, state)"
+          },
+          "fix": {
+            "type": "string",
+            "description": "HOW to fix: <=4 lines, exact shared function + root-cause change"
+          },
+          "test": {
+            "type": "string",
+            "description": "Exact test function name + assertion that proves the expected behavior"
+          }
+        }
+      }
+    }
+  }
+}
