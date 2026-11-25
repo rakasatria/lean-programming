@@ -75,6 +75,10 @@ Job:
 Rules:
 - Use tiered subagents (flash for mechanical/scouting, inherit for core waves, pro only for high-risk review).
 - If UI/views/routes/docs changed, capture Playwright screenshots (1440x900 + 390x844) via capture-screenshots.py into docs/assets/releases/<version>/, inspect PNGs, link in README/docs, and commit them with the release so images ship when pushed. (Backend-only: screenshots='n/a'.)
+- 1st review: one read-only `research` subagent (`Model: "pro"`) against the seven-pillar checklist (repo `docs/superpowers/specs/audits/*seven-pillar*.md`, else the skill's `references/seven-pillar-review.md`); every finding has an exact path:line with quoted code, an exact fix naming every file to touch, and a test name + assertion.
+- Fix protocol for every finding: reproduce first (the test must FAIL; else mark `not-reproduced` and send back, no code change), name the violated invariant in one line, list every site where it applies, fix once in the shared code that enforces it, extend the test to a table over all sites and input forms, then have the reviewer check the planned fixes for completeness BEFORE committing.
+- Round budget: pre-gate pass by the 1st reviewer; at most 3 gate delta rounds; if a round only finds narrower variants of a fixed class, or the same root cause returns after 2 attempts, return status='disputed' with a one-line scope question.
+- If the Project Policy sets `gate-reviewer:`, pass `--reviewer <that>` to gate-review.mjs.
 - Never skip full verification suite or the 2nd gate (gate-review.mjs; omit --reviewer so claude-fable-5-2 -> gpt-6.2-astra fallback applies). Its last "GateStatus:" line is the only result; on "GateStatus: error" return status='blocked' with the Error line.
 - Order is fixed: develop, verify, 1st review, fix, 2nd gate, fix, screenshots, merge (--no-ff), tag, push. Push the merge-into branch and the tag only when the Project Policy says push: yes; never force-push.
 - Obey the "## Project Policy" section of .superpowers/state.md: run only its allowed commands; if a forbidden or unlisted state-changing command is needed, return status='blocked' naming it.
