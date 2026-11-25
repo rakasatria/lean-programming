@@ -1,0 +1,9 @@
+{
+  "name": "lean-programming",
+  "version": "0.1.0",
+  "description": "Queue-driven releases: model-tiered subagents, 1st review, independent 2nd gate from another vendor, screenshots, merge, tag, push.",
+  "author": "rakasatria",
+  "skills": [
+    "./skills"
+  ]
+}

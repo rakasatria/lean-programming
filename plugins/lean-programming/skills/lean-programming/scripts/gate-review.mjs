@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Cross-vendor 2nd-gate reviewer (Claude <-> Antigravity). Zero dependencies, Node >= 20.
+// Cross-vendor 2nd-gate reviewer (Claude Code, Antigravity, Codex). Zero dependencies, Node >= 20.
 // The reviewer runs headless and read-only inside a throwaway export of HEAD (no .git),
 // so nothing it does can touch the real repository.
 import { spawn, spawnSync } from 'node:child_process';
@@ -19,6 +19,7 @@ Usage:
 Cross-vendor rule: the agent that drives the release never reviews its own work.
   Driver Claude Code (env CLAUDECODE)                 -> agy; if agy cannot review -> codex
   Driver Antigravity (env ANTIGRAVITY_TRAJECTORY_ID)  -> claude; if claude cannot review -> codex
+  Driver Codex (env CODEX_THREAD_ID)                  -> claude; if claude cannot review -> agy
   Omit --reviewer to get this chain. A fallback is automatic, printed as "ReviewerFailed:"
   and noted in the review file. --reviewer X forces exactly X with no fallback; naming the
   driver's own vendor exits 2.
@@ -71,16 +72,16 @@ const NOISE = [
 
 // Cross-vendor rule: the agent that drives the release never reviews its own work.
 // Reviewers per driver, in order; a later one runs only when the earlier one cannot review.
-// GATE_SAME_VENDOR=1 (Claude-only teams): the driver's own vendor, as a fresh headless session, becomes the last fallback.
+// GATE_SAME_VENDOR=1 (single-vendor teams): the driver's own vendor, as a fresh headless session, becomes the last fallback.
 const SAME_VENDOR = process.env.GATE_SAME_VENDOR === '1';
-const CHAIN = { claude: ['agy', 'codex', ...(SAME_VENDOR ? ['claude'] : [])], agy: ['claude', 'codex', ...(SAME_VENDOR ? ['agy'] : [])] };
+const OTHERS = { claude: ['agy', 'codex'], agy: ['claude', 'codex'], codex: ['claude', 'agy'] };
+const CHAIN = Object.fromEntries(Object.entries(OTHERS).map(([d, o]) => [d, SAME_VENDOR ? [...o, d] : o]));
 // Pinned so the review never silently runs on whatever the CLI's default happens to be.
 const CLAUDE_MODEL = process.env.GATE_CLAUDE_MODEL || 'claude-fable-5-2';
 const AGY_MODEL = process.env.GATE_AGY_MODEL || 'gemini-4-carbon-high';
 const CODEX_MODEL = process.env.GATE_CODEX_MODEL || 'gpt-6.2-astra';
-const inClaude = Boolean(process.env.CLAUDECODE);
-const inAgy = Boolean(process.env.ANTIGRAVITY_TRAJECTORY_ID);
-const DRIVER = inClaude === inAgy ? '' : inClaude ? 'claude' : 'agy'; // '' = unknown or nested
+const DRIVERS = [process.env.CLAUDECODE && 'claude', process.env.ANTIGRAVITY_TRAJECTORY_ID && 'agy', process.env.CODEX_THREAD_ID && 'codex'].filter(Boolean);
+const DRIVER = DRIVERS.length === 1 ? DRIVERS[0] : ''; // '' = unknown or nested
 
 let tmpDir = '';
 let child = null;
@@ -323,6 +324,7 @@ async function main() {
       claude: ['-p', '--model', CLAUDE_MODEL,
         '--effort', round === 1 && opt.risk === 'high' ? 'high' : 'medium',
         '--permission-mode', 'plan', '--permission-prompts', 'none', '--no-session-persistence',
+        '--strict-mcp-config', // no MCP servers: their tool definitions cost far more than the review itself
         '--tools', 'Read,Grep,Glob', '--output-format', 'json',
         '--json-schema', fs.readFileSync(schemaFile, 'utf8'), text],
       // Headless agy auto-denies every tool without an allow-rule. --settings applies to this
@@ -371,7 +373,9 @@ async function main() {
     failures.push(`${reviewer}: ${result.error}`);
     console.log(`ReviewerFailed: ${reviewer}: ${result.error}${result.log ? ` (log ${result.log})` : ''}`);
   }
-  if (!payload) fail(EXIT.reviewer, failures.join(' | '));
+  const hint = !SAME_VENDOR && failures.every((f) => f.includes('binary not found'))
+    ? ' | no other-vendor reviewer installed: set GATE_SAME_VENDOR=1 for a same-vendor gate' : '';
+  if (!payload) fail(EXIT.reviewer, failures.join(' | ') + hint);
 
   // Normalise conservatively: never drop a finding, unknown severity counts as blocking.
   const flat = (v) => String(v ?? '').replace(/\s+/g, ' ').trim();

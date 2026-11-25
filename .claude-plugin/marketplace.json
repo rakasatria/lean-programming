@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "lean-programming",
-  "description": "Lean release workflow for Claude Code, plus the three plugins it needs, pinned to tested versions.",
+  "description": "Lean release workflow for Claude Code, Antigravity and Codex, plus the three plugins it needs, pinned to tested versions.",
   "owner": {
     "name": "rakasatria",
     "url": "https://github.com/rakasatria"
@@ -9,26 +9,38 @@
   "plugins": [
     {
       "name": "lean-programming",
-      "description": "Queue-driven releases: model-pinned subagents, Fable 1st review, independent 2nd gate, screenshots, merge, tag, push.",
+      "description": "Queue-driven releases: model-tiered subagents, 1st review, independent 2nd gate from another vendor, screenshots, merge, tag, push.",
       "source": "./plugins/lean-programming",
       "category": "development"
     },
     {
       "name": "superpowers",
       "description": "Prerequisite. Brainstorming, plans, subagent-driven development (obra/superpowers).",
-      "source": { "source": "url", "url": "https://github.com/obra/superpowers.git", "sha": "22f0b463e7a5e579904dd6211a520321035526f7" },
+      "source": {
+        "source": "url",
+        "url": "https://github.com/obra/superpowers.git",
+        "sha": "22f0b463e7a5e579904dd6211a520321035526f7"
+      },
       "category": "development"
     },
     {
       "name": "ponytail",
       "description": "Prerequisite. Smallest complete change (DietrichGebert/ponytail 5.3.3).",
-      "source": { "source": "url", "url": "https://github.com/DietrichGebert/ponytail.git", "sha": "ebd8654c2c627f721eb8f9c0d1bd4090a29f9e10" },
+      "source": {
+        "source": "url",
+        "url": "https://github.com/DietrichGebert/ponytail.git",
+        "sha": "ebd8654c2c627f721eb8f9c0d1bd4090a29f9e10"
+      },
       "category": "productivity"
     },
     {
       "name": "caveman",
       "description": "Prerequisite. Terse output, exact technical terms (JuliusBrussee/caveman 4.2.0).",
-      "source": { "source": "url", "url": "https://github.com/JuliusBrussee/caveman.git", "sha": "47c61be2d10a354f0c5cbe2b90959d24c06b16c6" },
+      "source": {
+        "source": "url",
+        "url": "https://github.com/JuliusBrussee/caveman.git",
+        "sha": "47c61be2d10a354f0c5cbe2b90959d24c06b16c6"
+      },
       "category": "productivity"
     }
   ]

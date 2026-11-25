@@ -2,9 +2,9 @@
 """Minimal Playwright screenshot capture helper for lean-programming releases.
 
 Run offline when cached:
-  uv run --offline --with playwright python3 capture-screenshots.py --manifest shots.json --out-dir docs/assets/releases/v0.19.0
+  uv run --offline --with playwright python3 capture-screenshots.py --manifest shots.json --out-dir docs/assets/releases/v1.0.0
 Or single URL:
-  uv run --offline --with playwright python3 capture-screenshots.py --url http://127.0.0.1:9000/login --out docs/assets/releases/v0.19.0/01-login.png
+  uv run --offline --with playwright python3 capture-screenshots.py --url http://localhost:3000/ --out docs/assets/releases/v1.0.0/01-login.png
 """
 
 from __future__ import annotations

@@ -49,7 +49,7 @@ function fixture(planBody = '## Task 1 — thing\n- **Review Focus:** FOCUS-MARK
   // Simulates a Claude Code driver whatever agent actually runs this test file.
   const run = (mode, extra = [], env = {}) => spawnSync(process.execPath,
     [GATE, '--plan', 'plan.md', '--base', base, '--out', 'reviews/r.md', ...extra],
-    { cwd: dir, encoding: 'utf8', env: { ...process.env, CLAUDECODE: '1', ANTIGRAVITY_TRAJECTORY_ID: '', GATE_AGY_BIN: stub, GATE_CLAUDE_BIN: stub, GATE_CODEX_BIN: stub, STUB_MODE: mode, STUB_CALLS: path.join(dir, 'calls'), ...env } });
+    { cwd: dir, encoding: 'utf8', env: { ...process.env, CLAUDECODE: '1', ANTIGRAVITY_TRAJECTORY_ID: '', CODEX_THREAD_ID: '', GATE_SAME_VENDOR: '', GATE_CLAUDE_MODEL: '', GATE_AGY_MODEL: '', GATE_CODEX_MODEL: '', GATE_AGY_BIN: stub, GATE_CLAUDE_BIN: stub, GATE_CODEX_BIN: stub, STUB_MODE: mode, STUB_CALLS: path.join(dir, 'calls'), ...env } });
   const calls = () => (fs.existsSync(path.join(dir, 'calls')) ? fs.readFileSync(path.join(dir, 'calls'), 'utf8').length : 0);
   return { dir, run, calls, review: () => fs.readFileSync(path.join(dir, 'reviews/r.md'), 'utf8') };
 }
@@ -106,10 +106,24 @@ test('Antigravity driver: claude cannot review, codex takes over and the review 
   assert.equal(f.run('claude-down', ['--reviewer', 'claude'], agyDriver).status, 4); // forced reviewer: no fallback
 });
 
+test('Codex driver: claude reviews first, agy is the fallback, codex is refused', () => {
+  const f = fixture();
+  const codexDriver = { CLAUDECODE: '', CODEX_THREAD_ID: 't1' };
+  assert.match(f.run('ok', [], codexDriver).stdout, /GateStatus: approved\n$/);
+  assert.match(f.review(), /^# Gate Review \(claude\)$/m);
+  const r = f.run('ok', [], { ...codexDriver, GATE_CLAUDE_BIN: '/nonexistent/claude' });
+  assert.match(r.stdout, /^ReviewerFailed: claude: /m);
+  assert.match(f.review(), /^# Gate Review \(agy\)$/m);
+  assert.equal(f.run('ok', ['--reviewer', 'codex'], codexDriver).status, 2); // Codex driver, Codex reviewer
+  assert.equal(f.run('ok', [], { CODEX_THREAD_ID: 't1' }).status, 2); // two drivers detected = nested, no --reviewer
+});
+
 test('GATE_SAME_VENDOR=1, Claude driver, no agy/codex installed: a fresh claude reviewer runs last', () => {
   const f = fixture();
   const missing = { GATE_AGY_BIN: '/nonexistent/agy', GATE_CODEX_BIN: '/nonexistent/codex' };
-  assert.equal(f.run('ok', [], missing).status, 4); // opt-in off: no Claude fallback
+  const off = f.run('ok', [], missing);
+  assert.equal(off.status, 4); // opt-in off: no Claude fallback
+  assert.match(off.stdout + off.stderr, /set GATE_SAME_VENDOR=1/);
   const r = f.run('ok', [], { ...missing, GATE_SAME_VENDOR: '1' });
   assert.equal(r.status, 0, r.stdout + r.stderr);
   assert.match(r.stdout, /^ReviewerFailed: agy: /m);

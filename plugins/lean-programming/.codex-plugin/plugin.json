@@ -1,0 +1,9 @@
+{
+  "name": "lean-programming",
+  "description": "Queue-driven releases: model-tiered subagents, 1st review, independent 2nd gate from another vendor, screenshots, merge, tag, push.",
+  "author": { "name": "rakasatria", "url": "https://github.com/rakasatria" },
+  "homepage": "https://github.com/rakasatria/lean-programming",
+  "repository": "https://github.com/rakasatria/lean-programming",
+  "keywords": ["release", "review", "subagents", "workflow"],
+  "skills": "./skills/"
+}
