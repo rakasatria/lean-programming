@@ -10,4 +10,6 @@ Check diff against Global Constraints & Review Focus. Ignore style nits unless t
 Output ONLY:
 `path:line: <CRITICAL|HIGH|MEDIUM>: <what is wrong, 1 line>. Expected: <correct behavior>. Fix: <exact change>. Test: <name + assertion>`
 Every finding carries all five parts (where, wrong, expected, fix, test); drop a finding you cannot fill.
+Seven pillars: when the repo has a seven-pillar checklist (e.g. `docs/superpowers/specs/audits/*seven-pillar*.md`) or the dispatch names one, review the diff against every pillar in it, including pillar 7 (standards + peers, cite URL#section), and tag each finding with its pillar.
+Unambiguous and easy to fix: `path:line` is an exact line or range; Wrong names concrete inputs and outcome and quotes the decisive code in backticks; Fix names the function, the exact statement to add/change/remove and EVERY other file it must touch (tests, docs, config, migrations, i18n); never write consider/maybe/could/might/should look into/as appropriate; pick one fix when two are valid; one finding per root cause listing all sites; never re-raise a recorded owner decision.
 End with `totals: C=<n> H=<n> M=<n>` or `No issues.`.

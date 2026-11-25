@@ -304,7 +304,10 @@ async function main() {
         + 'Report EVERY critical, high and medium finding in this one pass: later rounds only check the fixes, so a finding held back now is never reviewed. '
         + 'Make each fix complete: name every file and line it must touch, including the matching test, docs and config, so the fix does not need a second round.',
     "5. Set status='approved' ONLY when 0 critical, 0 high and 0 medium findings remain.",
-    `6. Use IDs ${prefix}-01, ${prefix}-02... Every finding states all of: location = WHERE (path:line), bug = WHAT is wrong (1 line, concrete failure), expected = the correct behavior (1 line, observable), fix = HOW (<=4 lines, exact function + change), test = exact name + assertion. Summary <=120 chars. Zero praise.`,
+    `6. Use IDs ${prefix}-01, ${prefix}-02... Every finding states all of: location = WHERE (path:line), bug = WHAT is wrong (1 line, concrete failure), expected = the correct behavior (1 line, observable), fix = HOW (<=6 lines: exact function + the exact statement to add/change/remove, plus EVERY other file it must touch: tests, docs, config, migrations, i18n), test = exact name + assertion that proves expected. Summary <=120 chars. Zero praise.`,
+    '6b. Be unambiguous and easy to fix: location is an exact path:line or line range, never a package or "somewhere". bug names concrete inputs and the wrong outcome, quoting the decisive code in backticks. '
+      + 'Never write consider, maybe, could, might, should look into, review whether or as appropriate. If two fixes are valid, choose one and say why in one clause. One finding per root cause; list every affected site in its fix. '
+      + 'A finding you cannot give an exact fix and test for must be dropped, not reported vaguely. Cite the standard clause (URL#section) when a standard is the reason.',
     '7. Tools: read files only. The only shell commands allowed are cat, grep, rg, ls, head, tail, wc. No git, no edits, no network. A denied tool aborts the whole review.',
     '8. Final answer: ONLY the JSON object that matches the schema.',
   ].join('\n');
