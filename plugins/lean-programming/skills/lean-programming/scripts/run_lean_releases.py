@@ -55,7 +55,7 @@ for raw in items:
     phase(f"Release {name}")
 
     extra_rule = (
-        f"Fix open/disputed findings in {review} on branch fix/{name}, move local tag, then run delta gate Round 2."
+        f"Fix open/disputed findings in {review} on branch fix/{name}, move local tag, re-verify; never run the gate again."
         if mode == "fix_review"
         else f"{plan} is already implemented and committed: skip the build waves. Run screenshots, verification, 1st review and Claude 2nd gate (--risk {risk})."
         if mode == "gate-only"
@@ -77,13 +77,13 @@ Rules:
 - If UI/views/routes/docs changed, capture Playwright screenshots (1440x900 + 390x844) via capture-screenshots.py into docs/assets/releases/<version>/, inspect PNGs, link in README/docs, and commit them with the release so images ship when pushed. (Backend-only: screenshots='n/a'.)
 - 1st review: one read-only `research` subagent (`Model: "pro"`) against the seven-pillar checklist (repo `docs/superpowers/specs/audits/*seven-pillar*.md`, else the skill's `references/seven-pillar-review.md`); every finding has an exact path:line with quoted code, an exact fix naming every file to touch, and a test name + assertion.
 - Fix protocol for every finding: reproduce first (the test must FAIL; else mark `not-reproduced` and send back, no code change), name the violated invariant in one line, list every site where it applies, fix once in the shared code that enforces it, extend the test to a table over all sites and input forms, then have the reviewer check the planned fixes for completeness BEFORE committing.
-- Round budget: pre-gate pass by the 1st reviewer; at most 3 gate delta rounds; if a round only finds narrower variants of a fixed class, or the same root cause returns after 2 attempts, return status='disputed' with a one-line scope question.
+- Round budget: pre-gate pass by the 1st reviewer. The 2nd gate runs ONCE (--round 1 only, never --round 2): gate review -> fix with tests -> full verify green -> done. In the 1st review, if a delta check only finds narrower variants of a fixed class, or the same root cause returns after 2 attempts, return status='disputed' with a one-line scope question.
 - If the Project Policy sets `gate-reviewer:`, pass `--reviewer <that>` to gate-review.mjs.
 - Never skip full verification suite or the 2nd gate (gate-review.mjs; omit --reviewer so claude-fable-5-2 -> gpt-6.2-astra fallback applies). Its last "GateStatus:" line is the only result; on "GateStatus: error" return status='blocked' with the Error line.
-- Order is fixed: develop, verify, 1st review, fix, 2nd gate, fix, screenshots, merge (--no-ff), tag, push. Push the merge-into branch and the tag only when the Project Policy says push: yes; never force-push.
+- Order is fixed: develop, verify, 1st review, fix, 2nd gate (once), fix + test + verify, screenshots, merge (--no-ff), tag, push. Push the merge-into branch and the tag only when the Project Policy says push: yes; never force-push.
 - Obey the "## Project Policy" section of .superpowers/state.md: run only its allowed commands; if a forbidden or unlisted state-changing command is needed, return status='blocked' naming it.
 - Replace this release's Queue line in .superpowers/state.md with its done form and write <=20-line report to docs/superpowers/reports/{name}.md.
-- If disputed/blocked after Round 2, return status='disputed' or 'blocked' with <=3-line notes.
+- If disputed/blocked, return status='disputed' or 'blocked' with <=3-line notes.
 """
 
     receipt = await agent(

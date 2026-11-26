@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Standard 1st-pass diff reviewer and Round 2 delta verifier in terse caveman-review format.
+description: Standard 1st-pass diff reviewer and 1st-review fix-delta verifier in terse caveman-review format.
 model: fable
 tools: Read, Grep, Glob, Bash
 disallowedTools: Edit, Write
